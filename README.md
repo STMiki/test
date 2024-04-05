@@ -28,6 +28,12 @@ Start the CLI
 ```bash
   npm run start
 ```
+or
+
+```bash
+  node build <sqlite-db-file>
+```
+
 ## Npm packages
 
 * [typescript](https://www.npmjs.com/package/typescript)

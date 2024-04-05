@@ -8,14 +8,14 @@ import generateData from './generate';
 import manageUsers from './manageUsers';
 import kleur from 'kleur';
 
-const db = map.sqlite(process.argv.length > 2 ? process.argv[2] : ':memory:');
+const db = map.sqlite(process.argv.length > 2 ? process.argv[2] : 'db.sqlite');
 
 let current_user: CurrentUser = null;
 
 const signInAs = async () => {
   const users = await db.users.getAll();
   if (!users.length) {
-    console.log(kleur.red('No users found'));
+    console.error(kleur.red('No users found'));
     return;
   }
   const answer = await prompts({
@@ -32,7 +32,7 @@ const signInAs = async () => {
 
 const main = async () => {
   console.log('Welcome to the school management system!');
-  initDb(db);
+  await initDb(db);
   let running = true;
   const answers: Record<string, Function> = {
     'formations': manageFormations,

@@ -1,13 +1,14 @@
 import prompts from 'prompts';
 import { CurrentUser, Database } from './types';
 import manageClassesActivity from './manageClassesActivities';
+import kleur from 'kleur';
 
 const createClass = async (db: Database, current_user: CurrentUser) => {
   if (current_user && current_user.role === 'student') {
     const registeredClass = await db._classStudentLink.getMany(db._classStudentLink.studentId.eq(current_user.id));
     const classes = (await db.class.getAll()).filter(classe => !registeredClass.some(l => l.classId === classe.id));
     if (!classes.length) {
-      console.error('You are already registered to all classes');
+      console.error(kleur.red('You are already registered to all classes'));
       return;
     }
     const answers = await prompts({
@@ -60,11 +61,19 @@ const createClass = async (db: Database, current_user: CurrentUser) => {
 
 const listClasses = async (db: Database, current_user: CurrentUser) => {
   const classes = await db.class.getAll();
+  if (!classes.length) {
+    console.error(kleur.red('No classes found'));
+    return;
+  }
   console.log(classes.map(classe => `${classe.id}: '${classe.title}' (${classe.startDate} - ${classe.endDate})`).join('\n'));
 }
 
 const updateClass = async (db: Database, current_user: CurrentUser) => {
   const classes = await db.class.getAll();
+  if (!classes.length) {
+    console.error(kleur.red('No classes found'));
+    return;
+  }
   const answers = await prompts({
     type: 'select',
     name: 'id',
@@ -77,7 +86,7 @@ const updateClass = async (db: Database, current_user: CurrentUser) => {
 
   const classe = classes.find(classe => classe.id === answers.id);
   if (!classe) {
-    console.error('Class not found');
+    console.error(kleur.red('Class not found'));
     return;
   }
 
@@ -115,7 +124,7 @@ const deleteClass = async (db: Database, current_user: CurrentUser) => {
   if (current_user && current_user.role === 'student') {
     const registeredClass = await db._classStudentLink.getMany(db._classStudentLink.studentId.eq(current_user.id), { class: true });
     if (!registeredClass.length) {
-      console.error('You are not registered to any class');
+      console.error(kleur.red('You are not registered to any class'));
       return;
     }
 
@@ -138,6 +147,10 @@ const deleteClass = async (db: Database, current_user: CurrentUser) => {
   }
 
   const classes = await db.class.getAll();
+  if (!classes.length) {
+    console.error(kleur.red('No classes to delete'));
+    return;
+  }
   const answers = await prompts({
     type: 'select',
     name: 'id',

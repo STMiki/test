@@ -9,7 +9,7 @@ const createFormation = async (db: Database, current_user: CurrentUser) => {
     const registeredFormation = await db._formationStudentLink.getMany(db._formationStudentLink.studentId.eq(current_user.id));
     const formations = (await db.formation.getAll()).filter(formation => !registeredFormation.some(link => link.formationId === formation.id));
     if (!formations.length) {
-      console.error('You are already registered to all formations');
+      console.error(kleur.red('You are already registered to all formations'));
       return;
     }
     const answers = await prompts({
@@ -61,6 +61,10 @@ const createFormation = async (db: Database, current_user: CurrentUser) => {
 
 const listFormations = async (db: Database, current_user: CurrentUser) => {
   const formations = await db.formation.getAll();
+  if (!formations.length) {
+    console.error(kleur.red('No formation found'));
+    return;
+  }
   if (current_user && current_user.role === 'student') {
     const links = await db._formationStudentLink.getMany(db._formationStudentLink.studentId.eq(current_user.id));
     console.log(formations.map(
@@ -74,6 +78,12 @@ const listFormations = async (db: Database, current_user: CurrentUser) => {
 
 const updateFormation = async (db: Database) => {
   const formations = await db.formation.getAll();
+
+  if (!formations.length) {
+    console.error(kleur.red('No formation to update'));
+    return;
+  }
+
   const answers = await prompts({
     type: 'select',
     name: 'id',
@@ -86,7 +96,7 @@ const updateFormation = async (db: Database) => {
 
   const formation = formations.find(formation => formation.id === answers.id);
   if (!formation) {
-    console.error('Formation not found');
+    console.error(kleur.red('Formation not found'));
     return;
   }
 
@@ -124,7 +134,7 @@ const unregisterStudent = async (db: Database, current_user: CurrentUser) => {
   if (current_user && current_user.role === 'student') {
     const formationStudentLink = await db._formationStudentLink.getMany(db._formationStudentLink.studentId.equal(current_user.id), { formation: true });
     if (!formationStudentLink.length) {
-      console.error('You are not registered to any formation');
+      console.error(kleur.red('You are not registered to any formation'));
       return;
     }
     const answers = await prompts({
@@ -143,7 +153,7 @@ const unregisterStudent = async (db: Database, current_user: CurrentUser) => {
 
   const formationStudentLink = await db._formationStudentLink.getAll({ student: { orderBy: 'name asc' } });
   if (!formationStudentLink.length) {
-    console.error('No student are registered to a formation');
+    console.error(kleur.red('No student are registered to a formation'));
     return;
   }
   const formations = await db.formation.getMany(db.formation.id.in(formationStudentLink.map(link => link.formationId)));
@@ -180,6 +190,10 @@ const unregisterStudent = async (db: Database, current_user: CurrentUser) => {
 
 const deleteFormation = async (db: Database) => {
   const formations = await db.formation.getAll();
+  if (formations.length === 0) {
+    console.error(kleur.red('No formation to delete'));
+    return;
+  }
   const answers = await prompts({
     type: 'select',
     name: 'id',
@@ -227,6 +241,10 @@ const showScores = async (db: Database, current_user: CurrentUser) => {
   }
 
   const formations = await db.formation.getAll();
+  if (!formations.length) {
+    console.error(kleur.red('No formation to show scores'));
+    return;
+  }
   const answers = await prompts({
     type: 'select',
     name: 'id',

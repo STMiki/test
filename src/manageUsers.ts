@@ -1,5 +1,6 @@
 import prompts from 'prompts';
 import { Database } from './types';
+import kleur from 'kleur';
 
 const createUser = async (db: Database) => {
   const answers = await prompts([
@@ -96,6 +97,12 @@ const updateUser = async (db: Database) => {
 
 const deleteUser = async (db: Database) => {
   const users = await db.users.getAll();
+
+  if (!users.length) {
+    console.error(kleur.red('No users found'));
+    return;
+  }
+
   const answers = await prompts({
     type: 'select',
     name: 'id',

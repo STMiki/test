@@ -34,6 +34,10 @@ const createClassActivity = async (db: Database, current_user: CurrentUser) => {
   }
 
   const formations = await db.formation.getAll();
+  if (!formations.length) {
+    console.error(kleur.red('No formations found'));
+    return;
+  }
   const formationAnswers = await prompts({
     type: 'select',
     name: 'formationId',
@@ -92,11 +96,19 @@ const createClassActivity = async (db: Database, current_user: CurrentUser) => {
 
 const listClassActivity = async (db: Database, current_user: CurrentUser) => {
   const classActivities = await db.classActivity.getAll();
-  console.table(classActivities);
+  if (!classActivities.length) {
+    console.error(kleur.red('No activities found'));
+    return;
+  }
+  console.log(classActivities.map(activity => `${activity.id}: ${activity.title} - ${activity.description}`).join('\n'));
 }
 
 const updateClassActivity = async (db: Database, current_user: CurrentUser) => {
   const classActivities = await db.classActivity.getAll();
+  if (!classActivities.length) {
+    console.error(kleur.red('No activities found'));
+    return;
+  }
   const answers = await prompts({
     type: 'select',
     name: 'id',
@@ -145,6 +157,10 @@ const updateClassActivity = async (db: Database, current_user: CurrentUser) => {
 
 const deleteClassActivity = async (db: Database, current_user: CurrentUser) => {
   const classActivities = await db.classActivity.getAll();
+  if (!classActivities.length) {
+    console.error(kleur.red('No activities found'));
+    return;
+  }
   const answers = await prompts({
     type: 'select',
     name: 'id',
