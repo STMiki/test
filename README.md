@@ -17,10 +17,12 @@ Install dependencies
   npm install
 ```
 
-Compile the CLI
+npm should automatically compile the cli for you
+
+if not compile the CLI
 
 ```bash
-  npm run start
+  npm run compile
 ```
 
 Start the CLI
